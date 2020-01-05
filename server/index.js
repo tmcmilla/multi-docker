@@ -22,22 +22,28 @@ const pgClient = new Pool({
 
 pgClient.on('error', () => console.log('Lost PG connection'));
 
-pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)')
-.catch(err => console.log(err));
+(async () => {
+  try {
+    await pgClient.query('CREATE TABLE IF NOT EXISTS values (number INT)');
+  } catch (e) {
+    console.log(e);
+  }
+})();
+//////////
 
 // Redis Client Setup
 const redis = require('redis');
 const redisClient = redis.createClient({
-    host: keys.redisHost,
-    port: keys.redisPort,
-    retry_strategy: () => 1000
+  retry_strategy: () => 1000,
+  host: keys.redisHost,
+  port: keys.redisPort
 });
 
 const redisPublisher = redisClient.duplicate();
 
 // Express Route handlers
 app.get('/', (req, res) => {
-  res.send('Hi');
+  res.send('hi');
 });
 
 
@@ -54,18 +60,18 @@ app.get('/values/current', async (req, res) => {
 });
 
 app.post('/values', async (req, res) => {
-    const index = req.body.index;
-    if (parseInt(index) >  40) {
-        return res.status(422).send('Index too high');
-    }
-    redisClient.hset('values', index, 'Nothing yet!');
-    redisPublisher.publish('insert', index);
-    pgClient.query('INSERT INTO values(number) VALUES($1)', [index]);
+  const value = req.body.value;
+  if (parseInt(value) > 40) {
+    return res.status(422).send('Value too high');
+  }
+  redisClient.hset('values', value, 'nothing yet!');
+  redisPublisher.publish('insert', value);
+  pgClient.query('INSERT INTO values(number) VALUES($1)', [value]);
 
     res.send({working: true});
 
 });
 
 app.listen(5000, err => {
-    console.log('Listening');
+  console.log('Listening!');
 });
