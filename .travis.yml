@@ -14,10 +14,10 @@ after_success:
   - docker build -t tmcmilla/multi-server ./server
   - docker build -t tmcmilla/multi-worker ./worker
 
-# Log in to docker cli
-- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" -- password-stdin
-# Take those images push them to docker buh 
-- docker push tmcmilla/multi-client
-- docker push tmcmilla/multi-nginx
-- docker push tmcmilla/multi-server
-- docker push tmcmilla/multi-worker
+  # Log in to docker cli
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" -- password-stdin
+  # Take those images push them to docker buh 
+  - docker push tmcmilla/multi-client
+  - docker push tmcmilla/multi-nginx
+  - docker push tmcmilla/multi-server
+  - docker push tmcmilla/multi-worker
