@@ -1,0 +1,23 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t tmcmilla/react-test -f ./client/Dockerfile.dev ./client
+  
+script:
+  - docker run -e CI=true tmcmilla/react-test npm test
+
+after_success:
+  - docker build -t tmcmilla/multi-client ./client
+  - docker build -t tmcmilla/multi-nginx ./nginx
+  - docker build -t tmcmilla/multi-server ./server
+  - docker build -t tmcmilla/multi-worker ./worker
+
+# Log in to docker cli
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" -- password-stdin
+# Take those images push them to docker buh 
+- docker push tmcmilla/multi-client
+- docker push tmcmilla/multi-nginx
+- docker push tmcmilla/multi-server
+- docker push tmcmilla/multi-worker
